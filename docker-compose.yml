@@ -1,24 +1,24 @@
 version: "3.9"
 
 services:
-  sms-service:
-    build:
-      context: .
-      dockerfile: src/Dockerfile
-    container_name: sms-service
-    depends_on:
-      - postgres
-      - rabbitmq
-      - redis
-    environment:
-      - APP_ENV=local
-    ports:
-      - "8080:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+#  sms-service:
+#    build:
+#      context: .
+#      dockerfile: src/Dockerfile
+#    container_name: sms-service
+#    depends_on:
+#      - postgres
+#      - rabbitmq
+#      - redis
+#    environment:
+#      - APP_ENV=docker
+#    ports:
+#      - "8080:8080"
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
 
   postgres:
     image: postgres:16
@@ -26,7 +26,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: sms
+      POSTGRES_DB: sms_gateway
     ports:
       - "5432:5432"
     volumes:
@@ -51,7 +51,7 @@ services:
 
   redis:
     image: redis:7
-    container_name: redis
+    container_name: redis_1
     ports:
       - "6379:6379"
     healthcheck:

@@ -2,16 +2,19 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
 // Define constants for environment names
 const (
 	environmentLocal       = "local"
+	environmentDocker      = "docker"
 	environmentProduction  = "production"
 	environmentDevelopment = "development"
 )
@@ -25,6 +28,14 @@ type Config struct {
 	Logger   LoggerConfig
 	Otp      OtpConfig
 	JWT      JWTConfig
+	RabbitMQ RabbitConfig
+}
+
+type RabbitConfig struct {
+	User     string
+	Password string
+	Host     string
+	Port     string
 }
 
 type ServerConfig struct {
@@ -127,9 +138,10 @@ func ParseConfig(v *viper.Viper) (*Config, error) {
 }
 func LoadConfig(filename string, fileType string) (*viper.Viper, error) {
 	v := viper.New()
+	dir, file := filepath.Split(filename)
 	v.SetConfigType(fileType)
-	v.SetConfigName(filename)
-	v.AddConfigPath(".")
+	v.SetConfigName(strings.TrimSuffix(file, "."+fileType))
+	v.AddConfigPath(dir)
 	v.AutomaticEnv()
 
 	err := v.ReadInConfig()
@@ -145,16 +157,24 @@ func LoadConfig(filename string, fileType string) (*viper.Viper, error) {
 
 func getConfigPath(env string) string {
 	currentPath, err := os.Getwd()
+	fmt.Println(currentPath)
+
+	configDirectory := "config"
+	fmt.Println(filepath.Join(currentPath, configDirectory, "config-local.yml"))
 	if err != nil {
 		log.Fatalf("Error getting current path: %v", err)
 	}
 	if env == environmentLocal {
-		return filepath.Join(currentPath, "config-local.yml")
+		return filepath.Join(currentPath, configDirectory, "config-local.yml")
 	}
 	if env == environmentDevelopment {
-		return filepath.Join(currentPath, "config-develop.yml")
+		return filepath.Join(currentPath, configDirectory, "config-develop.yml")
 	}
 	if env == environmentProduction {
-		return filepath.Join(currentPath, "config-production.yml")
+		return filepath.Join(currentPath, configDirectory, "config-production.yml")
 	}
+	if env == environmentDocker {
+		return filepath.Join(currentPath, configDirectory, "config-docker.yml")
+	}
+	return ""
 }

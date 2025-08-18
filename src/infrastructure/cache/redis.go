@@ -40,20 +40,27 @@ func GetRedis() *redis.Client {
 }
 
 func CloseRedis() {
-	redisClient.Close()
+	err := redisClient.Close()
+	if err != nil {
+		return
+	}
 }
 
 func Set[T any](c *redis.Client, key string, value T, duration time.Duration) error {
 	v, err := json.Marshal(value)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	if err != nil {
 		return err
 	}
-	return c.Set(key, v, duration).Err()
+	return c.Set(ctx, key, v, duration).Err()
 }
 
 func Get[T any](c *redis.Client, key string) (T, error) {
 	var dest T = *new(T)
-	v, err := c.Get(key).Result()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	v, err := c.Get(ctx, key).Result()
 	if err != nil {
 		return dest, err
 	}
