@@ -1,0 +1,84 @@
+@startuml
+
+interface ISmsSender {
+    + send_sms()
+}
+
+interface ISmsBulkSender {
+    + send_sms_bulk()
+}
+
+interface IRequestMethodPost {
+    + post()
+}
+
+interface IRequestMethodGet {
+       + get()
+}
+
+interface IMapper {
+    + mapToProviderFormat()
+    + mapFromProviderFormat()
+}
+
+interface IErrorHandler {
+    + handleError()
+}
+
+interface IAuthenticator {
+    + authenticate()
+}
+
+interface ISmsReceiver {
+    + receiveSmsDataByID(id: string or int)
+}
+
+class ProviderService {
+    + send_sms()
+    + send_sms_bulk()
+}
+
+class ThirdPartyProviderA {
+    + send_sms()
+    + post()
+    + mapToProviderFormat()
+    + handleError()
+    + authenticate()
+    + receiveSmsData()
+    + receiveSmsDataByID(id: string)
+}
+
+class ThirdPartyProviderB {
+    + send_sms()
+    + send_sms_bulk()
+    + post()
+    + mapToProviderFormat()
+    + handleError()
+    + authenticate()
+    + receiveSmsData()
+    + receiveSmsDataByID(id: string)
+}
+
+ProviderService --> ISmsSender
+ProviderService --> ISmsBulkSender
+ProviderService --> IRequestMethodGet
+ProviderService --> IMapper
+ProviderService --> IErrorHandler
+ProviderService --> IAuthenticator
+ProviderService --> ISmsReceiver
+
+ISmsSender <|.. ThirdPartyProviderA
+ISmsSender <|.. ThirdPartyProviderB
+ISmsBulkSender <|.. ThirdPartyProviderB
+IRequestMethodGet <|.. ThirdPartyProviderA
+IRequestMethodPost <|.. ThirdPartyProviderB
+IMapper <|.. ThirdPartyProviderA
+IMapper <|.. ThirdPartyProviderB
+IErrorHandler <|.. ThirdPartyProviderA
+IErrorHandler <|.. ThirdPartyProviderB
+IAuthenticator <|.. ThirdPartyProviderA
+IAuthenticator <|.. ThirdPartyProviderB
+ISmsReceiver <|.. ThirdPartyProviderA
+ISmsReceiver <|.. ThirdPartyProviderB
+
+@enduml
