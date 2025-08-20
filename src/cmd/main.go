@@ -6,14 +6,20 @@ import (
 	"abrarvan_challenge/infrastructure/persistance/broker"
 	"abrarvan_challenge/infrastructure/persistance/database"
 	"abrarvan_challenge/logging"
+	"abrarvan_challenge/model"
 	"github.com/gin-gonic/gin"
+	"os"
 )
 
 func main() {
+	err := os.Setenv("APP_ENV", "local")
+	if err != nil {
+		return
+	}
 	cfg := config.GetConfig()
 	logger := logging.NewLogger(cfg)
 
-	err := cache.InitRedis(cfg)
+	err = cache.InitRedis(cfg)
 	defer cache.CloseRedis()
 	if err != nil {
 		logger.Fatal(logging.Redis, logging.Startup, err.Error(), nil)
@@ -28,6 +34,10 @@ func main() {
 	err = broker.InitRabbitMq(cfg)
 	if err != nil {
 		logger.Fatal(logging.RabbitMQ, logging.Startup, err.Error(), nil)
+	}
+	err = model.MigrateDatabaseTables(database.GetDb())
+	if err != nil {
+		logger.Fatal(logging.DatabaseMigration, logging.Startup, err.Error(), nil)
 	}
 	//api.InitServer(cfg)
 	router := gin.Default()
