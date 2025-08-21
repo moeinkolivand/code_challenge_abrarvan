@@ -2,10 +2,13 @@ package logging
 
 import (
 	"fmt"
-	"gopkg.in/natefinch/lumberjack.v2"
+	"os"
 	"time"
 
+	"gopkg.in/natefinch/lumberjack.v2"
+
 	"abrarvan_challenge/config"
+
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -43,22 +46,25 @@ func (l *zapLogger) getLogLevel() zapcore.Level {
 func (l *zapLogger) Init() {
 	once.Do(func() {
 		fileName := fmt.Sprintf("%s%s-%s.%s", l.cfg.Logger.FilePath, time.Now().Format("2006-01-02"), uuid.New(), "log")
-		w := zapcore.AddSync(&lumberjack.Logger{
+		fileWriter := zapcore.AddSync(&lumberjack.Logger{
 			Filename:   fileName,
-			MaxSize:    1,
-			MaxAge:     20,
+			MaxSize:    1,  // MB
+			MaxAge:     20, // days
 			LocalTime:  true,
 			MaxBackups: 5,
 			Compress:   true,
 		})
 
+		// Add console output
+		consoleWriter := zapcore.AddSync(os.Stdout)
+
 		config := zap.NewProductionEncoderConfig()
 		config.EncodeTime = zapcore.ISO8601TimeEncoder
 
-		core := zapcore.NewCore(
-			zapcore.NewJSONEncoder(config),
-			w,
-			l.getLogLevel(),
+		// Combine file and console outputs
+		core := zapcore.NewTee(
+			zapcore.NewCore(zapcore.NewJSONEncoder(config), fileWriter, l.getLogLevel()),
+			zapcore.NewCore(zapcore.NewConsoleEncoder(config), consoleWriter, l.getLogLevel()),
 		)
 
 		logger := zap.New(core, zap.AddCaller(),

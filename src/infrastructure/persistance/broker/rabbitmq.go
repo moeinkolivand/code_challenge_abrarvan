@@ -4,8 +4,9 @@ import (
 	"abrarvan_challenge/config"
 	"context"
 	"fmt"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"time"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 var rabbitConn *amqp.Connection
@@ -19,6 +20,13 @@ type queueOptions struct {
 	autoDelete bool
 	exclusive  bool
 	noWait     bool
+}
+
+// Consumer represents a RabbitMQ consumer.
+type Consumer struct {
+	conn    *amqp.Connection
+	channel *amqp.Channel
+	queue   string
 }
 
 type ConsumeOptions struct {
@@ -69,9 +77,18 @@ func InitRabbitMq(cfg *config.Config) error {
 	return nil
 }
 
+func GetRabbitConnection() *amqp.Connection {
+	return rabbitConn
+}
+
 func CreateChannel(name, queueName string, opts ...QueueOption) (*amqp.Channel, error) {
+	if rabbitConn == nil {
+		return nil, fmt.Errorf("rabbitMQ connection is nil")
+	}
+
 	ch, err := rabbitConn.Channel()
 	if err != nil {
+		fmt.Println("Failed to create channel: %v", err)
 		return nil, err
 	}
 
@@ -100,7 +117,7 @@ func CreateChannel(name, queueName string, opts ...QueueOption) (*amqp.Channel, 
 	if err != nil {
 		return nil, err
 	}
-
+	SetChannel(name, ch)
 	return ch, nil
 }
 
@@ -130,6 +147,7 @@ func Publish(channelKey, exchange, routingKey string, body []byte) error {
 func Consume(channelName, queueName string, opts ...ConsumeOptions) (<-chan amqp.Delivery, error) {
 	ch, err := GetChannel(channelName)
 	if err != nil {
+		fmt.Println(123123123)
 		return nil, err
 	}
 
@@ -162,4 +180,16 @@ func Consume(channelName, queueName string, opts ...ConsumeOptions) (<-chan amqp
 		finalOpts.NoWait,
 		finalOpts.Args,
 	)
+}
+
+func (c *Consumer) Close() error {
+	if err := c.channel.Close(); err != nil {
+		return err
+	}
+	return c.conn.Close()
+}
+
+// SetChannel stores a channel with a given name
+func SetChannel(name string, ch *amqp.Channel) {
+	channels[name] = ch
 }
