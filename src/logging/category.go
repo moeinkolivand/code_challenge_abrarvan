@@ -15,12 +15,18 @@ const (
 	Prometheus        Category = "Prometheus"
 	RabbitMQ          Category = "RabbitMQ"
 	DatabaseMigration Category = "DatabaseMigration"
+	WebService        Category = "WebService"
 )
 
 const (
 	// General
 	Startup         SubCategory = "Startup"
 	ExternalService SubCategory = "ExternalService"
+	MessageReceived SubCategory = "MessageReceived"
+	Publish         SubCategory = "MessagePublished"
+	MessageAck      SubCategory = "MessageAck"
+	Shutdown        SubCategory = "Shutdown"
+	Request         SubCategory = "Request"
 
 	// Postgres
 	Migration SubCategory = "Migration"

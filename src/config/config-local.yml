@@ -1,4 +1,5 @@
 server:
+  port: 8080
   internalPort: 5005
   externalPort: 5005
   runMode: debug

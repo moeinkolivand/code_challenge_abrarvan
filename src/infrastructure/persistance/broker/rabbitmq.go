@@ -68,7 +68,6 @@ func InitRabbitMq(cfg *config.Config) error {
 		cfg.RabbitMQ.Host,
 		cfg.RabbitMQ.Port,
 	)
-	fmt.Println(url)
 	connection, err := amqp.Dial(url)
 	if err != nil {
 		return err
