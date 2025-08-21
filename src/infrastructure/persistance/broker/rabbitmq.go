@@ -131,7 +131,10 @@ func GetChannel(name string) (*amqp.Channel, error) {
 func Publish(channelKey, exchange, routingKey string, body []byte) error {
 	ch, err := GetChannel(channelKey)
 	if err != nil {
-		return err
+		ch, err = CreateChannel(channelKey, routingKey)
+		if err != nil {
+			return err
+		}
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

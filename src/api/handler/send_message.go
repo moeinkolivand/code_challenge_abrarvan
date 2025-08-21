@@ -2,9 +2,11 @@ package handler
 
 import (
 	"abrarvan_challenge/config"
-	"abrarvan_challenge/infrastructure/persistance/broker"
+	broker "abrarvan_challenge/infrastructure/persistance/broker"
 	"abrarvan_challenge/logging"
+	providers "abrarvan_challenge/provider"
 	"encoding/json"
+	"math/rand"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -36,7 +38,7 @@ func (sendMessageHandler *SendMessageHandler) SendMessageHandler(c *gin.Context)
 		return
 	}
 
-	err = broker.Publish("producerChannel", "", "my_queue", messageBody)
+	err = broker.Publish("consumerChannel", "", "my_queue", messageBody)
 	if err != nil {
 		logger.Error(logging.RabbitMQ, logging.Publish, "Failed to publish message: "+err.Error(), nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to publish message"})
@@ -44,8 +46,12 @@ func (sendMessageHandler *SendMessageHandler) SendMessageHandler(c *gin.Context)
 	}
 
 	logger.Info(logging.RabbitMQ, logging.Publish, "Message published successfully", map[logging.ExtraKey]interface{}{
-		"body": string(messageBody),
+		"body": "Hello From Api",
 	})
+	providerName := []string{"provider_one", "provider_two"}[rand.Intn(2)]
+	logger.Infof("Provider Name Is %v", providerName)
+	provider := providers.ProviderServiceFactory(providerName)
+	provider.BaseProvider.SendSMS("09332823692", "Hello World")
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Message queued for processing",
