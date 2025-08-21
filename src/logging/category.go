@@ -16,6 +16,7 @@ const (
 	RabbitMQ          Category = "RabbitMQ"
 	DatabaseMigration Category = "DatabaseMigration"
 	WebService        Category = "WebService"
+	SMSProvider       Category = "SmsProvider"
 )
 
 const (
@@ -27,6 +28,8 @@ const (
 	MessageAck      SubCategory = "MessageAck"
 	Shutdown        SubCategory = "Shutdown"
 	Request         SubCategory = "Request"
+	Mapping         SubCategory = "DataMapping"
+	Authentication  SubCategory = "Authentication"
 
 	// Postgres
 	Migration SubCategory = "Migration"
