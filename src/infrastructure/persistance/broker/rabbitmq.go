@@ -146,7 +146,6 @@ func Publish(channelKey, exchange, routingKey string, body []byte) error {
 func Consume(channelName, queueName string, opts ...ConsumeOptions) (<-chan amqp.Delivery, error) {
 	ch, err := GetChannel(channelName)
 	if err != nil {
-		fmt.Println(123123123)
 		return nil, err
 	}
 

@@ -2,13 +2,13 @@ package config
 
 import (
 	"errors"
-	"fmt"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 // Define constants for environment names
@@ -157,10 +157,8 @@ func LoadConfig(filename string, fileType string) (*viper.Viper, error) {
 
 func getConfigPath(env string) string {
 	currentPath, err := os.Getwd()
-	fmt.Println(currentPath)
 
 	configDirectory := "config"
-	fmt.Println(filepath.Join(currentPath, configDirectory, "config-local.yml"))
 	if err != nil {
 		log.Fatalf("Error getting current path: %v", err)
 	}

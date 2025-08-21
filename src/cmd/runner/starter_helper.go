@@ -9,7 +9,6 @@ import (
 	"abrarvan_challenge/logging"
 	"abrarvan_challenge/model"
 	"flag"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -23,12 +22,8 @@ type App struct {
 
 // NewApp initializes dependencies
 func NewApp() (*App, error) {
-	appEnv := os.Getenv("APP_ENV")
-	if appEnv == "" {
-		if err := os.Setenv("APP_ENV", "local"); err != nil {
-			return nil, fmt.Errorf("failed to set APP_ENV: %w", err)
-		}
-	}
+	os.Setenv("APP_ENV", "local")
+
 	// Load configuration
 	cfg := config.GetConfig()
 	logger := logging.NewLogger(cfg)
