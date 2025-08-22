@@ -9,20 +9,23 @@ import (
 	"abrarvan_challenge/logging"
 	"abrarvan_challenge/model"
 	"flag"
+	"gorm.io/gorm"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-// App holds application dependencies
 type App struct {
 	cfg    *config.Config
 	Logger logging.Logger
+	db     *gorm.DB
 }
 
-// NewApp initializes dependencies
 func NewApp() (*App, error) {
-	os.Setenv("APP_ENV", "local")
+	err := os.Setenv("APP_ENV", "local")
+	if err != nil {
+		return nil, err
+	}
 
 	// Load configuration
 	cfg := config.GetConfig()
@@ -39,7 +42,11 @@ func NewApp() (*App, error) {
 		logger.Fatal(logging.Postgres, logging.Startup, "Failed to initialize database: "+err.Error(), nil)
 		return nil, err
 	}
-	model.SeedUsers(database.GetDb())
+	databaseConnection := database.GetDb()
+	err = model.SeedUsers(databaseConnection)
+	if err != nil {
+		return nil, err
+	}
 
 	// Initialize RabbitMQ
 	if err := broker.InitRabbitMq(cfg); err != nil {
@@ -48,15 +55,14 @@ func NewApp() (*App, error) {
 	}
 
 	// Migrate database tables
-	if err := model.MigrateDatabaseTables(database.GetDb()); err != nil {
+	if err := model.MigrateDatabaseTables(databaseConnection); err != nil {
 		logger.Fatal(logging.DatabaseMigration, logging.Startup, "Failed to migrate database: "+err.Error(), nil)
 		return nil, err
 	}
 
-	return &App{cfg: cfg, Logger: logger}, nil
+	return &App{cfg: cfg, Logger: logger, db: databaseConnection}, nil
 }
 
-// parseFlags parses command-line flags for consumer mode
 func ParseFlags() (bool, string, broker.ConsumeOptions, []broker.QueueOption) {
 	runConsumer := flag.Bool("consumer", false, "Run the message consumer")
 	queueName := flag.String("queue", "", "Queue name to consume from")
@@ -91,7 +97,6 @@ func ParseFlags() (bool, string, broker.ConsumeOptions, []broker.QueueOption) {
 	return *runConsumer, *queueName, consOpts, queueOpts
 }
 
-// runConsumerMode runs the RabbitMQ consumer
 func RunConsumerMode(app *App, queueName string, consOpts broker.ConsumeOptions, queueOpts []broker.QueueOption) {
 	app.Logger.Info(logging.RabbitMQ, logging.Startup, "Starting consumer mode...", nil)
 
@@ -134,9 +139,8 @@ func RunConsumerMode(app *App, queueName string, consOpts broker.ConsumeOptions,
 	}
 }
 
-// runWebServiceMode runs the web server
 func RunWebServiceMode(app *App) {
-	router := api.InitServer(app.cfg)
+	router := api.InitServer(app.cfg, app.db)
 	addr := ":" + app.cfg.Server.InternalPort
 	if err := router.Run(addr); err != nil {
 		app.Logger.Fatal(logging.WebService, logging.Startup, "Failed to start web server: "+err.Error(), nil)

@@ -11,7 +11,11 @@ type Provider struct {
 	smsReceiver   ISmsReceiver
 }
 
-func ProviderServiceFactory(providerName string) *Provider {
+func (s *Provider) GetName() string {
+	panic("implement me")
+}
+
+func NewProvider(providerName string) *Provider {
 	tpA := NewThirdPartyProviderA()
 	tpB := NewThirdPartyProviderB()
 	switch providerName {

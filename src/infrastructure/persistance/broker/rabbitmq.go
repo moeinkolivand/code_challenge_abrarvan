@@ -12,7 +12,6 @@ import (
 var rabbitConn *amqp.Connection
 var channels = make(map[string]*amqp.Channel)
 
-// QueueOption defines a functional option for queue declaration
 type QueueOption func(*queueOptions)
 
 type queueOptions struct {

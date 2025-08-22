@@ -6,23 +6,19 @@ import (
 	"abrarvan_challenge/config"
 	"abrarvan_challenge/infrastructure/persistance/broker"
 	"abrarvan_challenge/logging"
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
 
 type WebService struct {
-	cfg     *config.Config
-	logger  logging.Logger
-	handler *MessageHandler
-}
-
-type MessageHandler struct {
+	cfg    *config.Config
 	logger logging.Logger
+	db     *gorm.DB
 }
 
-func NewWebService(cfg *config.Config, logger logging.Logger) *WebService {
-	handler := &MessageHandler{logger: logger}
-	return &WebService{cfg: cfg, logger: logger, handler: handler}
+func NewWebService(cfg *config.Config, logger logging.Logger, db *gorm.DB) *WebService {
+	return &WebService{cfg: cfg, logger: logger, db: db}
 }
 
 func (ws *WebService) SetupRouter() *gin.Engine {
@@ -39,7 +35,7 @@ func (ws *WebService) SetupRouter() *gin.Engine {
 func (ws *WebService) RegisterRoutes(router *gin.Engine) {
 	api := router.Group("/api")
 	healthCheckApiGroup := api.Group("/health")
-    sendSmsApiGroup := api.Group("/notificaiton")
+	sendSmsApiGroup := api.Group("/notificaiton")
 	customRouter.Health(healthCheckApiGroup)
-    customRouter.SendSmsRouter(sendSmsApiGroup)
+	customRouter.SendSmsRouter(sendSmsApiGroup, ws.db)
 }

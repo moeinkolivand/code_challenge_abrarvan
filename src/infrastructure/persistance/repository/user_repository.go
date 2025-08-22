@@ -12,7 +12,7 @@ import (
 
 var logger logging.Logger = logging.NewLogger(config.GetConfig())
 
-type UserRepository interface {
+type IUserRepository interface {
 	Create(user *model.User) error
 	FindByID(id uint) (*model.User, error)
 	FindByPhoneNumber(phoneNumber string) (*model.User, error)
@@ -24,7 +24,7 @@ type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) UserRepository {
+func NewUserRepository(db *gorm.DB) IUserRepository {
 	return &userRepository{
 		db: db,
 	}
@@ -68,7 +68,7 @@ func (r *userRepository) FindByPhoneNumber(phoneNumber string) (*model.User, err
 		"phoneNumber": phoneNumber,
 	})
 	var user model.User
-	if err := r.db.First(&user, phoneNumber).Error; err != nil {
+	if err := r.db.Where("phone_number = ?", phoneNumber).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logger.Warn(logging.Postgres, logging.Select, "User not found", map[logging.ExtraKey]interface{}{
 				"phoneNumber": phoneNumber,
