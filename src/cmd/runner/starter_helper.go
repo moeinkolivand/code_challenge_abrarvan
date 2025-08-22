@@ -39,6 +39,7 @@ func NewApp() (*App, error) {
 		logger.Fatal(logging.Postgres, logging.Startup, "Failed to initialize database: "+err.Error(), nil)
 		return nil, err
 	}
+	model.SeedUsers(database.GetDb())
 
 	// Initialize RabbitMQ
 	if err := broker.InitRabbitMq(cfg); err != nil {
