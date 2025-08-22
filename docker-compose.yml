@@ -1,24 +1,29 @@
 version: "3.9"
 
 services:
-#  sms-service:
-#    build:
-#      context: .
-#      dockerfile: src/Dockerfile
-#    container_name: sms-service
-#    depends_on:
-#      - postgres
-#      - rabbitmq
-#      - redis
-#    environment:
-#      - APP_ENV=docker
-#    ports:
-#      - "8080:8080"
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
+  # sms-service:
+  #   build:
+  #     context: .
+  #     dockerfile: src/Dockerfile
+  #   container_name: sms-service
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     - APP_ENV=docker
+  #   ports:
+  #     - "8080:8080"
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - sms-network
 
   postgres:
     image: postgres:16
@@ -36,6 +41,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - sms-network
 
   rabbitmq:
     image: rabbitmq:3.13-management
@@ -48,6 +55,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - sms-network
 
   redis:
     image: redis:7
@@ -59,6 +68,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - sms-network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -70,11 +81,17 @@ services:
       - pgadmin:/var/lib/pgadmin
     ports:
       - "8090:80"
-    restart: unless-stopped
     depends_on:
-      - postgres
-
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - sms-network
 
 volumes:
   postgres_data:
   pgadmin:
+
+networks:
+  sms-network:
+    driver: bridge
