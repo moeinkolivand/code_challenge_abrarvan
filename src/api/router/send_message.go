@@ -16,7 +16,6 @@ func SendSmsRouter(r *gin.RouterGroup, db *gorm.DB) {
 	providerName := []string{"provider_one", "provider_two"}[rand.Intn(2)]
 	smsProvider := provider.NewProvider(providerName)
 	userService := usrService.NewUserService(smsProvider, userRepository)
-	//NewUserService
 	userHandler := handler.NewUserHandler(userService)
 	r.POST("/send-message", userHandler.UserHandler)
 }

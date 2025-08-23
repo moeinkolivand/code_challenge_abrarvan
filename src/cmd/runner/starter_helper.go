@@ -2,18 +2,22 @@ package runner
 
 import (
 	"abrarvan_challenge/api"
+	"abrarvan_challenge/api/dto"
 	"abrarvan_challenge/config"
 	"abrarvan_challenge/infrastructure/cache"
 	"abrarvan_challenge/infrastructure/persistance/broker"
 	"abrarvan_challenge/infrastructure/persistance/database"
+	"abrarvan_challenge/infrastructure/persistance/repository"
 	"abrarvan_challenge/logging"
 	"abrarvan_challenge/model"
+	"abrarvan_challenge/provider"
+	usrService "abrarvan_challenge/service"
+	"encoding/json"
 	"flag"
+	"gorm.io/gorm"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"gorm.io/gorm"
 )
 
 type App struct {
@@ -109,13 +113,25 @@ func RunConsumerMode(app *App, queueName string, consOpts broker.ConsumeOptions,
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	app.Logger.Info(logging.RabbitMQ, logging.Startup, "Consumer started. Waiting for messages...", nil)
-
+	userRepository := repository.NewUserRepository(app.db)
+	providerName := []string{"provider_one", "provider_two"}[rand.Intn(2)]
+	smsProvider := provider.NewProvider(providerName)
+	userService := usrService.NewUserService(smsProvider, userRepository)
 	for {
 		select {
 		case msg := <-msgs:
 			app.Logger.Info(logging.RabbitMQ, logging.MessageReceived, "Received message from custom log", map[logging.ExtraKey]interface{}{
 				"body": string(msg.Body),
 			})
+			var req dto.SendMessageRequestDto
+			if err := json.Unmarshal(msg.Body, &req); err != nil {
+				app.Logger.Error(logging.RabbitMQ, logging.MessageReceived, "Invalid message: "+err.Error(), nil)
+				continue
+			}
+			err := userService.ConsumerSendSms(req.PhoneNumber, req.Message)
+			if err != nil {
+				return
+			}
 			if !consOpts.AutoAck {
 				if err := msg.Ack(false); err != nil {
 					app.Logger.Error(logging.RabbitMQ, logging.MessageAck, "Failed to acknowledge message: "+err.Error(), nil)

@@ -19,9 +19,9 @@ type queueOptions struct {
 	autoDelete bool
 	exclusive  bool
 	noWait     bool
+	priority   uint8
 }
 
-// Consumer represents a RabbitMQ consumer.
 type Consumer struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
@@ -37,7 +37,6 @@ type ConsumeOptions struct {
 	Args      amqp.Table
 }
 
-// defaultConsumeOptions provides default values
 var defaultConsumeOptions = ConsumeOptions{
 	Consumer:  "",
 	AutoAck:   true,
@@ -58,6 +57,9 @@ func WithExclusive(e bool) QueueOption {
 }
 func WithNoWait(nw bool) QueueOption {
 	return func(o *queueOptions) { o.noWait = nw }
+}
+func WithMaxPriority(p uint8) QueueOption {
+	return func(o *queueOptions) { o.priority = p }
 }
 
 func InitRabbitMq(cfg *config.Config) error {
@@ -96,6 +98,7 @@ func CreateChannel(name, queueName string, opts ...QueueOption) (*amqp.Channel, 
 		autoDelete: false,
 		exclusive:  false,
 		noWait:     false,
+		priority:   0,
 	}
 
 	// Apply functional options
@@ -103,14 +106,19 @@ func CreateChannel(name, queueName string, opts ...QueueOption) (*amqp.Channel, 
 		opt(qOpts)
 	}
 
-	// Declare the queue
+	// Declare the queue with priority support
+	args := amqp.Table{}
+	if qOpts.priority > 0 {
+		args["x-max-priority"] = qOpts.priority
+	}
+
 	_, err = ch.QueueDeclare(
 		queueName,
 		qOpts.durable,
 		qOpts.autoDelete,
 		qOpts.exclusive,
 		qOpts.noWait,
-		nil,
+		args,
 	)
 	if err != nil {
 		return nil, err
@@ -127,7 +135,7 @@ func GetChannel(name string) (*amqp.Channel, error) {
 	return ch, nil
 }
 
-func Publish(channelKey, exchange, routingKey string, body []byte) error {
+func Publish(channelKey, exchange, routingKey string, body []byte, priority uint8) error {
 	ch, err := GetChannel(channelKey)
 	if err != nil {
 		ch, err = CreateChannel(channelKey, routingKey)
@@ -142,6 +150,7 @@ func Publish(channelKey, exchange, routingKey string, body []byte) error {
 	return ch.PublishWithContext(ctx, exchange, routingKey, false, false, amqp.Publishing{
 		ContentType: "application/json",
 		Body:        body,
+		Priority:    priority,
 	})
 }
 
