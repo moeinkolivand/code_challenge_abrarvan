@@ -80,7 +80,7 @@ classDiagram
         +receiveSmsDataByID(id: string)
     }
     
-    %% ProviderService dependencies (composition)
+    ProviderService dependencies (composition)
     ProviderService --> ISmsSender
     ProviderService --> ISmsBulkSender
     ProviderService --> IRequestMethodGet
@@ -90,7 +90,7 @@ classDiagram
     ProviderService --> IAuthenticator
     ProviderService --> ISmsReceiver
     
-    %% Interface implementations
+    Interface implementations
     ISmsSender <|.. ThirdPartyProviderA
     ISmsSender <|.. ThirdPartyProviderB
     ISmsBulkSender <|.. ThirdPartyProviderB
@@ -104,7 +104,7 @@ classDiagram
     IAuthenticator <|.. ThirdPartyProviderB
     ISmsReceiver <|.. ThirdPartyProviderA
     ISmsReceiver <|.. ThirdPartyProviderB
-```
+
 
 ## Features
 
