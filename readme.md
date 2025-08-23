@@ -2,6 +2,11 @@
 
 **Note**: This project was developed as part of a code challenge with limited time. Because of the tight deadline, comprehensive unit tests were not included, and code was pushed directly to the main branch. The provider design has been completed, and two third-party services are used for simulation. Currently, only the health check and SMS sending routes are implemented; other APIs are not yet available
 
+#### If the user balance runs out, you can recharge it by running the script 
+```bash
+chmod +x charge_user_balance.sh
+./charge_user_balance.sh 09999948734 100
+```
 ## Provider Design
 The SMS provider system follows a flexible interface-based design pattern. 
 
@@ -289,7 +294,7 @@ Log categories include:
 - API requests/responses
 - System events
 
-## 🚦 API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -298,7 +303,7 @@ Log categories include:
 
 
 
-## 🚀 Deployment
+## Deployment
 
 ### Docker Deployment
 
