@@ -1,6 +1,6 @@
 # SMS Gateway Service
 
-**Note**: This is a code challenge implementation with limited development time. Due to the tight deadline, comprehensive unit tests were not included, though the architecture is designed to be easily testable with proper dependency injection and interface-based design.
+**Note**: This project was developed as part of a code challenge with limited time. Because of the tight deadline, comprehensive unit tests were not included, and code was pushed directly to the main branch. The provider design has been completed, and two third-party services are used for simulation. Currently, only the health check and SMS sending routes are implemented; other APIs are not yet available
 
 ## Provider Design
 The SMS provider system follows a flexible interface-based design pattern. 
