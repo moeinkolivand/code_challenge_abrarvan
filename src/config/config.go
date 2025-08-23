@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -68,7 +69,7 @@ type RedisConfig struct {
 	Host               string
 	Port               string
 	Password           string
-	Db                 string
+	Db                 int
 	DialTimeout        time.Duration
 	ReadTimeout        time.Duration
 	WriteTimeout       time.Duration
@@ -105,6 +106,7 @@ type JWTConfig struct {
 
 func GetConfig() *Config {
 	cfgPath := getConfigPath(os.Getenv("APP_ENV"))
+	fmt.Println(cfgPath)
 	v, err := LoadConfig(cfgPath, "yml")
 	if err != nil {
 		log.Fatalf("Error in load config %v", err)

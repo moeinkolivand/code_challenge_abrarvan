@@ -9,10 +9,11 @@ import (
 	"abrarvan_challenge/logging"
 	"abrarvan_challenge/model"
 	"flag"
-	"gorm.io/gorm"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"gorm.io/gorm"
 )
 
 type App struct {
@@ -22,11 +23,6 @@ type App struct {
 }
 
 func NewApp() (*App, error) {
-	err := os.Setenv("APP_ENV", "local")
-	if err != nil {
-		return nil, err
-	}
-
 	// Load configuration
 	cfg := config.GetConfig()
 	logger := logging.NewLogger(cfg)
@@ -43,7 +39,7 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 	databaseConnection := database.GetDb()
-	err = model.SeedUsers(databaseConnection)
+	err := model.SeedUsers(databaseConnection)
 	if err != nil {
 		return nil, err
 	}

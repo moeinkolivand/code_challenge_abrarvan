@@ -117,7 +117,7 @@ classDiagram
 ## Hardware Requirements Assumptions
 **Note**: 
 The following hardware/resource estimates are provided as baseline assumptions for running the SMS Gateway.
-Some values are approximate and chosen for illustration (e.g., the RabbitMQ memory estimate is intentionally low — in practice, a production instance will require significantly more).
+Some values are approximate and chosen for illustration (e.g., the RabbitMQ memory estimate is intentionally low — in practice, a production instance will require significantly more). \
 [Hard Ware Assumptions](infrastruce_requirement_assumptions.md)   
 
 ## Features

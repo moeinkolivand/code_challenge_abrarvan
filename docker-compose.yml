@@ -1,29 +1,48 @@
 version: "3.9"
 
 services:
-  # sms-service:
-  #   build:
-  #     context: .
-  #     dockerfile: src/Dockerfile
-  #   container_name: sms-service
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     rabbitmq:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #   environment:
-  #     - APP_ENV=docker
-  #   ports:
-  #     - "8080:8080"
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - sms-network
+  sms-service:
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    container_name: sms-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - APP_ENV=docker
+    ports:
+      - "8080:5005"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sms-network
+
+  sms-consumer:
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - APP_ENV=docker
+    command: ["./abrarvan_challenge", "--consumer", "--queue=my_queue", "--consumer-name=worker"]
+    networks:
+      - sms-network
+    deploy:
+      replicas: 1
 
   postgres:
     image: postgres:16
@@ -60,7 +79,7 @@ services:
 
   redis:
     image: redis:7
-    container_name: redis_1
+    container_name: redis_container
     ports:
       - "6379:6379"
     healthcheck:

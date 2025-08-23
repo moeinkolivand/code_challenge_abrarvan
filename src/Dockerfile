@@ -1,25 +1,59 @@
 # ---------- Builder Stage ----------
 FROM golang:1.25 as builder
+
+
 WORKDIR /app
 
-# Copy go.mod / go.sum first and download deps
+
 COPY src/go.mod src/go.sum ./
+
 
 RUN go mod download
 
-# Copy the full source
+
 COPY src/ .
 
-# Build the binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o abrarvan_challenge ./cmd
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags='-w -s -extldflags "-static"' \
+    -a -installsuffix cgo \
+    -o abrarvan_challenge ./cmd
 
 # ---------- Runtime Stage ----------
-FROM alpine:3.22
+FROM alpine:3.22 as runtime
+
+
+RUN apk --no-cache add \
+    ca-certificates \
+    wget \
+    curl \
+    tzdata \
+    && update-ca-certificates
+
+
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
 
 WORKDIR /app
 
-COPY --from=builder /app/abrarvan_challenge .
 
-COPY --from=builder /app/config ./config
+COPY --from=builder --chown=appuser:appgroup /app/abrarvan_challenge .
 
-ENTRYPOINT ["./abrarvan_challenge"]
+
+COPY --from=builder --chown=appuser:appgroup /app/config ./config
+
+RUN chmod +x ./abrarvan_challenge
+
+# RUN mkdir -p logs && chown -R appuser:appgroup logs
+
+
+USER appuser
+
+EXPOSE 5005
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost:5005/api/health || exit 1
+
+# Default command (web service mode)
+# Can be overridden in docker-compose for consumer mode
+CMD ["./abrarvan_challenge"]
