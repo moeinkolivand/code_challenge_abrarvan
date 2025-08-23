@@ -199,7 +199,7 @@ export APP_ENV=local
 go run cmd/main.go
 
 # Or start in consumer mode
-go run cmd/main.go -consumer -queue=my_queue
+go run cmd/main.go --consumer --queue=my_queue
 ```
 
 ##  Usage
@@ -229,10 +229,10 @@ Start message consumers to process queued messages:
 
 ```bash
 # Basic consumer
-go run cmd/main.go -consumer -queue=my_queue
+go run cmd/main.go --consumer --queue=my_queue
 
 # Consumer with custom options
-go run cmd/main.go -consumer -queue=my_queue \
+go run cmd/main.go --consumer --queue=my_queue \
   -consumer-name=worker-1 \
   -auto-ack=false \
   -queue-durable=true
@@ -242,12 +242,12 @@ go run cmd/main.go -consumer -queue=my_queue \
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-consumer` | Run in consumer mode | false |
-| `-queue` | Queue name to consume from | "" |
-| `-queue-durable` | Queue durability | true |
-| `-queue-autodelete` | Queue auto-delete | false |
-| `-consumer-name` | Consumer name | "" |
-| `-auto-ack` | Auto acknowledge messages | true |
+| `--consumer` | Run in consumer mode | false |
+| `--queue` | Queue name to consume from | "" |
+| `--queue-durable` | Queue durability | true |
+| `--queue-autodelete` | Queue auto-delete | false |
+| `--consumer-name` | Consumer name | "" |
+| `--auto-ack` | Auto acknowledge messages | true |
 
 ##  Configuration
 

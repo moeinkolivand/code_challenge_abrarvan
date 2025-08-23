@@ -15,10 +15,12 @@ services:
         condition: service_healthy
     environment:
       - APP_ENV=docker
+    volumes:
+      - logs:/app/logs
     ports:
       - "8080:5005"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      test: ["CMD", "curl", "-f", "http://sms-service:8080/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,6 +38,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - logs:/app/logs
     environment:
       - APP_ENV=docker
     command: ["./abrarvan_challenge", "--consumer", "--queue=my_queue", "--consumer-name=worker"]
@@ -110,6 +114,7 @@ services:
 volumes:
   postgres_data:
   pgadmin:
+  logs:
 
 networks:
   sms-network:

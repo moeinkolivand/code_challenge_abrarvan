@@ -44,7 +44,7 @@ COPY --from=builder --chown=appuser:appgroup /app/config ./config
 
 RUN chmod +x ./abrarvan_challenge
 
-# RUN mkdir -p logs && chown -R appuser:appgroup logs
+RUN mkdir -p logs && chown -R appuser:appgroup logs
 
 
 USER appuser
