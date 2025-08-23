@@ -15,12 +15,13 @@ services:
         condition: service_healthy
     environment:
       - APP_ENV=docker
+      - PORT=5005
     volumes:
       - logs:/app/logs
     ports:
       - "8080:5005"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://sms-service:8080/api/health"]
+      test: curl --fail http://localhost:5005/api/health || exit 1
       interval: 10s
       timeout: 5s
       retries: 5

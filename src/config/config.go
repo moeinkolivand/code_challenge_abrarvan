@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -106,7 +105,6 @@ type JWTConfig struct {
 
 func GetConfig() *Config {
 	cfgPath := getConfigPath(os.Getenv("APP_ENV"))
-	fmt.Println(cfgPath)
 	v, err := LoadConfig(cfgPath, "yml")
 	if err != nil {
 		log.Fatalf("Error in load config %v", err)

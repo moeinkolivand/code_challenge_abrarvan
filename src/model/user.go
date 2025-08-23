@@ -1,7 +1,6 @@
 package model
 
 import (
-	"context"
 	"errors"
 	"time"
 
@@ -90,11 +89,10 @@ func SeedUsers(db *gorm.DB) error {
 			Model:        gorm.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		},
 	}
-	ctx := context.Background()
 	for _, user := range users {
-
-		_, err := gorm.G[User](db).First(ctx)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		var fakeUser User
+		result := db.Where("phone_number = ?", user.PhoneNumber).First(&fakeUser).Error
+		if errors.Is(result, gorm.ErrRecordNotFound) {
 			if err := db.Create(&user).Error; err != nil {
 				return err
 			}

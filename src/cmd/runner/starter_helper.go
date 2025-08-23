@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"flag"
 	"gorm.io/gorm"
+	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"

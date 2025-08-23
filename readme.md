@@ -171,7 +171,7 @@ The service supports multiple environments:
 Start all required services:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 This will start:
@@ -304,10 +304,10 @@ Log categories include:
 
 ```bash
 # Build and run all services
-docker-compose up --build
+docker compose up --build
 
 # Scale consumers
-docker-compose up --scale consumer=3
+docker compose up --scale sms-consumer=3
 ```
 
 ### Manual Deployment
