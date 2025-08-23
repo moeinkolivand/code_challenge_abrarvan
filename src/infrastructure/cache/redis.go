@@ -13,7 +13,6 @@ import (
 var redisClient *redis.Client
 
 func InitRedis(cfg *config.Config) error {
-	fmt.Println(fmt.Sprintf("%s:%s", cfg.Redis.Host, cfg.Redis.Port))
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:         fmt.Sprintf("%s:%s", cfg.Redis.Host, cfg.Redis.Port),
 		Password:     cfg.Redis.Password,
