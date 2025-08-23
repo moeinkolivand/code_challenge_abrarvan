@@ -155,7 +155,7 @@ The service follows a clean architecture pattern with clear separation of concer
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone github.com/moeinkolivand/code_challenge_abrarvan
 cd abrarvan_challenge
 ```
 
@@ -210,12 +210,12 @@ The service exposes RESTful APIs:
 
 #### Health Check
 ```bash
-curl http://localhost:5005/api/health
+curl http://localhost:8080/api/health
 ```
 
 #### Send SMS
 ```bash
-curl -X POST http://localhost:5005/api/notificaiton/send-message \
+curl -X POST http://localhost:8080/api/notificaiton/send-message \
   -H "Content-Type: application/json" \
   -d '{
     "message": "Hello World!",
