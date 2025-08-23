@@ -1,0 +1,8 @@
+### Send SMS message
+POST localhost:5005/api/notificaiton/send-message
+Content-Type: application/json
+
+{
+  "phoneNumber": "09999948734",
+  "message": "Hello from test request"
+}
